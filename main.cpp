@@ -1,31 +1,3 @@
-/*
-Copyright (c) 2016, Taiga Nomi
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-* Redistributions of source code must retain the above copyright
-notice, this list of conditions and the following disclaimer.
-* Redistributions in binary form must reproduce the above copyright
-notice, this list of conditions and the following disclaimer in the
-documentation and/or other materials provided with the distribution.
-* Neither the name of the <organization> nor the
-names of its contributors may be used to endorse or promote products
-derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY
-EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
-ANY
-DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
@@ -261,6 +233,8 @@ void train_cifar10_dog_cat
     	std::cout << "Epoch " << epoch << "/" << n_train_epochs << " finished. "
                   << t.elapsed() << "s elapsed." << std::endl;
     	++epoch;
+        tiny_dnn::result res = nn.test(test_images, test_labels);
+        log << res.num_success << "/" << res.num_total << std::endl;
     	disp.restart(train_images.size());
     	t.restart();
 		};
@@ -269,13 +243,14 @@ void train_cifar10_dog_cat
 
     // training
     nn.train<cross_entropy>(optimizer, train_images, train_labels, n_minibatch,
-                            n_train_epochs, on_enumerate_minibatch,
-                            on_enumerate_epoch);
+                            n_train_epochs, on_enumerate_minibatch, on_enumerate_epoch);
 
     std::cout << "end training." << std::endl;
 
+    // test and show results
+    nn.test(test_images, test_labels).print_detail(std::cout);
     // save networks
-    std::ofstream ofs("kaggle-weights");
+    std::ofstream ofs("kaggle-dog-cat-weights");
     ofs << nn;
 }
 
