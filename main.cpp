@@ -149,8 +149,8 @@ void construct_net
     using softmax = softmax_layer;
     using dp      = dropout_layer;
 
-    const serial_size_t n_fmaps  = 30;  // number of feature maps for upper layer
-    const serial_size_t n_fmaps2 = 50;  // number of feature maps for lower layer
+    const serial_size_t n_fmaps  = 32;  // number of feature maps for upper layer
+    const serial_size_t n_fmaps2 = 64;  // number of feature maps for lower layer
 
     nn << conv(64, 64, 3, 3, n_fmaps, padding::same, true, 1, 1, backend_type) // C1
        << relu() // activation
@@ -160,10 +160,10 @@ void construct_net
        << conv(32, 32, 3, n_fmaps2, n_fmaps2, padding::same, true, 1, 1, backend_type) // C4
        << relu() // activation
        << pool(32, 32, n_fmaps2, 2, backend_type) // P5
-       << fc(16 * 16 * n_fmaps2, 256, true, backend_type) // FC6
+       << fc(16 * 16 * n_fmaps2, 512, true, backend_type) // FC6
        << relu() // activation
-       << dp(256, 0.5)
-       << fc(256, 2, true, backend_type) //FC7
+       << dp(512, 0.5)
+       << fc(512, 2, true, backend_type) //FC7
        << softmax(2); // FC8
 }
 
@@ -182,13 +182,13 @@ void train_cifar10_dog_cat
 	adam optimizer;
 	construct_net(nn, backend_type);
 
-	for (int i = 0; i < nn.depth(); i++)
-		{
-		std::cout << "#layer:" << i << "\n";
-		std::cout << "layer type:" << nn[i]->layer_type() << "\n";
-		std::cout << "input:" << nn[i]->in_size() << "(" << nn[i]->in_shape() << ")\n";
-		std::cout << "output:" << nn[i]->out_size() << "(" << nn[i]->out_shape() << ")\n";
-		}
+	//for (int i = 0; i < nn.depth(); i++)
+	//	{
+	//	std::cout << "#layer:" << i << "\n";
+	//	std::cout << "layer type:" << nn[i]->layer_type() << "\n";
+	//	std::cout << "input:" << nn[i]->in_size() << "(" << nn[i]->in_shape() << ")\n";
+	//	std::cout << "output:" << nn[i]->out_size() << "(" << nn[i]->out_shape() << ")\n";
+	//	}
 
 	std::cout << "load models..." << std::endl;
 
@@ -264,9 +264,9 @@ static void usage
 	)
 {
 	std::cout << "Usage: " << argv0 << " --data_path path_to_dataset_folder"
-		<< " --learning_rate 0.001"
-		<< " --epochs 50"
-		<< " --minibatch_size 50"
+		<< " --learning_rate 0.01"
+		<< " --epochs 100"
+		<< " --minibatch_size 500"
 		<< " --backend_type avx" << std::endl;
 }
 
@@ -276,10 +276,10 @@ int main
 	char **argv
 	)
 {
-	double learning_rate         = 0.001;
-	int epochs                   = 50;
+	double learning_rate         = 0.01;
+	int epochs                   = 100;
 	std::string data_path        = "";
-	int minibatch_size           = 50;
+	int minibatch_size           = 500;
 	core::backend_t backend_type = core::default_engine();
 
 	if (argc == 2)
